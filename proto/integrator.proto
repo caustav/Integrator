@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "io.grpc.kc.engine";
+option java_outer_classname = "IntegratorProto";
+
+package integrator;
+
+service Integrator {
+  rpc Register (Module) returns (RegisterResponse) {}
+  rpc Start (StartRequest) returns (StartResponse) {}
+  rpc SaveChain (SaveChainRequest) returns (SaveChainResponse) {} 
+}
+
+service IntegratorModule {
+  rpc Execute (ExecuteRequest) returns (ExecuteResponse) {}
+}
+
+message Module {
+  string moduleId = 1;
+  string url = 2;
+  repeated Component components = 3;
+}
+
+message RegisterResponse {
+    bool success = 1;
+}
+
+message StartRequest {
+  string chainId = 1;
+  Component startComponent = 2;
+}
+
+message StartResponse {
+    bool success = 1;
+}
+
+message Component {
+    string name = 1;
+    map<string, DataType>  paramsInput = 2;
+    map<string, DataType> paramsOutput = 3;
+}
+
+message DataType {
+  enum Type {
+    INT = 0;
+    STR = 1;
+    BOOL = 2;
+    BYTES = 3;
+  }
+  string str = 1;
+  int32 int = 2;
+  bool boolean = 3;
+  bytes byteall = 4;
+  Type type = 5;
+}
+
+message SaveChainRequest {
+  bytes chainInfo = 2;
+}
+
+message SaveChainResponse {
+  bool success = 1;
+}
+
+message ExecuteRequest {
+  Component component = 1;
+}
+
+message ExecuteResponse {
+  
+}
