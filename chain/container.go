@@ -68,7 +68,8 @@ func (container *Container) executeComponent() {
 		container.ComponentHandler.Component = response.Component
 	} else {
 		request := &proIntegrator.ExecuteRequest{container.ComponentHandler.Component}
-		container.ComponentHandler.CompService.Execute(context.Background(), request)
+		response, _ := container.ComponentHandler.CompService.Execute(context.Background(), request)
+		container.ComponentHandler.Component = response.Component
 	}
 }
 

@@ -46,10 +46,23 @@ func (in *Input) FetchComponent() *proIntegrator.Component {
 
 // Execute method runs the core functionality it contains
 func (in *Input) Execute(ctx context.Context, req *proIntegrator.ExecuteRequest) (*proIntegrator.ExecuteResponse, error) {
-	response := &proIntegrator.ExecuteResponse{}
-	component := req.Component
-	component.ParamsOutput["Param1"] = component.ParamsInput["Param1"]
-	component.ParamsOutput["Param2"] = component.ParamsInput["Param2"]
+	inc := req.Component
+	inc.ParamsOutput["Param1"] = inc.ParamsInput["Param1"]
+	inc.ParamsOutput["Param2"] = inc.ParamsInput["Param2"]
+	component := &proIntegrator.Component{}
+	mapIn := make(map[string]*proIntegrator.DataType)
+	mapOut := make(map[string]*proIntegrator.DataType)
+	for key, value := range inc.ParamsInput {
+		mapIn[key] = value
+	}
+	for key, value := range inc.ParamsOutput {
+		mapOut[key] = value
+	}
+	component.Name = in.Component.Name
+	component.ParamsInput = mapIn
+	component.ParamsOutput = mapOut
+
+	response := &proIntegrator.ExecuteResponse{component}
 	return response, nil
 }
 

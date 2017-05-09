@@ -33,11 +33,27 @@ func (in *SampleIn) FetchComponent() *proIntegrator.Component {
 
 // Execute method runs the core functionality it contains
 func (in *SampleIn) Execute(ctx context.Context, req *proIntegrator.ExecuteRequest) (*proIntegrator.ExecuteResponse, error) {
-	response := &proIntegrator.ExecuteResponse{}
-	fmt.Println("SampleIn::Execute called with " + in.Component.ParamsInput["Param1"].Str + " " +
-		in.Component.ParamsInput["Param2"].Str)
 
-	in.Component.ParamsOutput["Param1"].Str = in.Component.ParamsInput["Param1"].Str + " SampleIn"
-	in.Component.ParamsOutput["Param2"].Str = in.Component.ParamsInput["Param2"].Str + " SampleIn"
+	fmt.Println("SampleIn::Execute called with " + req.Component.ParamsInput["Param1"].Str + " " +
+		req.Component.ParamsInput["Param2"].Str)
+
+	in.Component.ParamsOutput["Param1"].Str = req.Component.ParamsInput["Param1"].Str + " SampleIn"
+	in.Component.ParamsOutput["Param2"].Str = req.Component.ParamsInput["Param2"].Str + " SampleIn"
+
+	component := &proIntegrator.Component{}
+	mapIn := make(map[string]*proIntegrator.DataType)
+	mapOut := make(map[string]*proIntegrator.DataType)
+	for key, value := range in.Component.ParamsInput {
+		mapIn[key] = value
+	}
+	for key, value := range in.Component.ParamsOutput {
+		mapOut[key] = value
+	}
+	component.Name = in.Component.Name
+	component.ParamsInput = mapIn
+	component.ParamsOutput = mapOut
+
+	response := &proIntegrator.ExecuteResponse{component}
+
 	return response, nil
 }
