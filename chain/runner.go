@@ -17,6 +17,7 @@ type Runner struct {
 	ComponentHandlers []models.ComponentHandler
 	ComponentName     string
 	Containers        []Container
+	ContainerMap      map[string]*Container
 }
 
 //Run executes a chain
@@ -35,9 +36,10 @@ func (chainRunner *Runner) runRecursive(source *Container, target *Container, js
 	comName := source.ComponentHandler.Component.Name
 
 	if !jsonParsed.Path(comName + ".src").Index(counter).Exists() {
-		if source.IsInExecution == false {
+		if source.IsInExecution == 0 {
 			wg.Add(1)
 			go source.execute(wg)
+			source.IsInExecution = 3
 		}
 		return
 	}
@@ -46,21 +48,30 @@ func (chainRunner *Runner) runRecursive(source *Container, target *Container, js
 	stringSlice := strings.Split(targetstr, ".")
 	targetName := stringSlice[0]
 	targetParam := stringSlice[2]
-	if target == nil {
-		target = chainRunner.GetContainer(targetName)
-	}
+	targetID := stringSlice[3]
+	target = chainRunner.getTarget(targetName, targetID)
 	source.AddParam(OperatingParam{target, targetParam, sourceOutputParam})
 	counter++
 	chainRunner.runRecursive(source, target, jsonParsed, counter, wg)
-	if counter == 1 {
+	if target.IsInExecution == 0 {
 		chainRunner.runRecursive(target, nil, jsonParsed, 0, wg)
 	}
+}
+
+func (chainRunner *Runner) getTarget(targetName string, id string) *Container {
+	val := chainRunner.ContainerMap[id]
+	if val == nil {
+		val = chainRunner.GetContainer(targetName)
+		chainRunner.ContainerMap[id] = val
+	}
+	return val
 }
 
 //Init initialize object
 func (chainRunner *Runner) Init(compHandlers []models.ComponentHandler) {
 	chainRunner.ComponentHandlers = make([]models.ComponentHandler, 0)
 	chainRunner.Containers = make([]Container, 0)
+	chainRunner.ContainerMap = make(map[string]*Container)
 	for _, compHandler := range compHandlers {
 		compHlr := &models.ComponentHandler{nil, nil, nil}
 
@@ -76,7 +87,7 @@ func (chainRunner *Runner) Init(compHandlers []models.ComponentHandler) {
 
 		compHlr.CompService = compHandler.CompService
 		chainRunner.ComponentHandlers = append(chainRunner.ComponentHandlers, *compHlr)
-		container := Container{compHlr, make(chan bool), false, make([]OperatingParam, 0)}
+		container := Container{compHlr, make(chan bool), 0, make([]OperatingParam, 0)}
 		chainRunner.Containers = append(chainRunner.Containers, container)
 	}
 }
@@ -126,6 +137,6 @@ func (chainRunner *Runner) GetContainer(name string) *Container {
 
 	componentHandler.Component = component
 
-	con := &Container{componentHandler, make(chan bool), false, make([]OperatingParam, 0)}
+	con := &Container{componentHandler, make(chan bool), 0, make([]OperatingParam, 0)}
 	return con
 }

@@ -8,7 +8,7 @@ import (
 	proIntegrator "../proto"
 )
 
-// SampleIn is used for taking input from external source, it contains a component object
+// FileOut is used for taking input from external source, it contains a component object
 type FileOut struct {
 	Component proIntegrator.Component
 }
@@ -31,7 +31,20 @@ func (in *FileOut) FetchComponent() *proIntegrator.Component {
 
 // Execute method runs the core functionality it contains
 func (in *FileOut) Execute(ctx context.Context, req *proIntegrator.ExecuteRequest) (*proIntegrator.ExecuteResponse, error) {
-	response := &proIntegrator.ExecuteResponse{}
 	fmt.Println(in.Component.Name + " is called with " + req.Component.ParamsInput["data"].Str)
+	component := &proIntegrator.Component{}
+	mapIn := make(map[string]*proIntegrator.DataType)
+	mapOut := make(map[string]*proIntegrator.DataType)
+	for key, value := range req.Component.ParamsInput {
+		mapIn[key] = value
+	}
+	mapOut["File"] = req.Component.ParamsInput["data"]
+	mapOut["File"].Str += " FileOut added"
+
+	component.Name = in.Component.Name
+	component.ParamsInput = mapIn
+	component.ParamsOutput = mapOut
+
+	response := &proIntegrator.ExecuteResponse{component}
 	return response, nil
 }

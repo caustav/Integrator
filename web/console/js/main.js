@@ -4,6 +4,7 @@
     sys.parameters({gravity:true});
     sys.renderer = Renderer("#viewport", sys) ;
     var chainNumber = 1;
+    var compoID = 1
 
     var addComponent = function(v, sys) {
 
@@ -11,17 +12,19 @@
 
         if (v.paramsInput != undefined){
             $.each(v.paramsInput, function(k1, v1){
-                var inParam = sys.addNode(v.name + ".in." + k1, {'color':'green','shape':'dot','label':k1});
+                var inParam = sys.addNode(v.name + ".in." + k1 + "." + compoID, {'color':'green','shape':'dot','label':k1});
                 sys.addEdge(root, inParam);
             });
         }
 
         if (v.paramsOutput != undefined){
             $.each(v.paramsOutput, function(k2, v2){
-                var outParam = sys.addNode(v.name + ".out." + k2, {'color':'blue','shape':'dot','label':k2});
+                var outParam = sys.addNode(v.name + ".out." + k2 + "." + compoID, {'color':'blue','shape':'dot','label':k2});
                 sys.addEdge(root, outParam);
             });         
         }
+
+        compoID ++;
     }
 
     function recurAddition(item, parent, weight) {

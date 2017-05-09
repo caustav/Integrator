@@ -12,7 +12,7 @@ import (
 type Container struct {
 	ComponentHandler *models.ComponentHandler
 	Blocked          chan bool
-	IsInExecution    bool
+	IsInExecution    int
 	OperatingParams  []OperatingParam
 }
 
@@ -42,12 +42,12 @@ func (container *Container) AddParam(param OperatingParam) {
 //Execute component inside
 func (container *Container) execute(wg *sync.WaitGroup) {
 	if container.isAllInputFilled() == false {
-		container.IsInExecution = true
+		container.IsInExecution = 1
 		blocked := <-container.Blocked
 		if blocked == false {
 			container.executeComponent()
 		}
-		container.IsInExecution = false
+		container.IsInExecution = 2
 	} else {
 		container.executeComponent()
 	}
@@ -74,7 +74,7 @@ func (container *Container) executeComponent() {
 }
 
 func (container *Container) manageInputs() {
-	if container.isAllInputFilled() == true && container.IsInExecution == true {
+	if container.isAllInputFilled() == true && container.IsInExecution == 1 {
 		container.Blocked <- false
 	}
 }

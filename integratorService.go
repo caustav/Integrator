@@ -113,7 +113,7 @@ func (intgService *integratorService) Start(ctx context.Context, request *proInt
 }
 
 func (intgService *integratorService) startChain(bytes []byte, comName string) {
-	runner := &chain.Runner{nil, comName, nil}
+	runner := &chain.Runner{nil, comName, nil, nil}
 	runner.Init(intgService.ComponentHandlers)
 	runner.Run(bytes)
 }
