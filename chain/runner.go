@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	models "../models"
+	proIntegrator "../proto"
 	"github.com/Jeffail/gabs"
 )
 
@@ -106,10 +107,25 @@ func (chainRunner *Runner) GetContainer(name string) *Container {
 			break
 		}
 	}
+	componentHandler := &models.ComponentHandler{}
+	componentHandler.ClientConn = container.ComponentHandler.ClientConn
+	componentHandler.CompService = container.ComponentHandler.CompService
 
-	componentHandler := *container.ComponentHandler
-	component := *container.ComponentHandler.Component
-	componentHandler.Component = &component
-	con := &Container{&componentHandler, make(chan bool), false, make([]OperatingParam, 0)}
+	component := &proIntegrator.Component{}
+	mapIn := make(map[string]*proIntegrator.DataType)
+	mapOut := make(map[string]*proIntegrator.DataType)
+	for key, value := range container.ComponentHandler.Component.ParamsInput {
+		mapIn[key] = value
+	}
+	for key := range container.ComponentHandler.Component.ParamsOutput {
+		mapOut[key] = nil
+	}
+	component.Name = container.ComponentHandler.Component.Name
+	component.ParamsInput = mapIn
+	component.ParamsOutput = mapOut
+
+	componentHandler.Component = component
+
+	con := &Container{componentHandler, make(chan bool), false, make([]OperatingParam, 0)}
 	return con
 }

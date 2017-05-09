@@ -72,6 +72,10 @@ func (intgService *integratorService) initComponents(webConsole *webConsole.Serv
 	componentHandler = models.ComponentHandler{nil, sampleIn1.FetchComponent(), &sampleIn1}
 	intgService.ComponentHandlers = append(intgService.ComponentHandlers, componentHandler)
 
+	var fileOut input.FileOut
+	componentHandler = models.ComponentHandler{nil, fileOut.FetchComponent(), &fileOut}
+	intgService.ComponentHandlers = append(intgService.ComponentHandlers, componentHandler)
+
 	webInterface := in.FetchWebInterface()
 	webConsole.UpdateInterface(webInterface.URL, webInterface.WebHandlerFunction, webInterface.MethodType)
 }
@@ -109,7 +113,7 @@ func (intgService *integratorService) Start(ctx context.Context, request *proInt
 }
 
 func (intgService *integratorService) startChain(bytes []byte, comName string) {
-	runner := &chain.Runner{nil, comName, nil, nil, 0}
+	runner := &chain.Runner{nil, comName, nil}
 	runner.Init(intgService.ComponentHandlers)
 	runner.Run(bytes)
 }

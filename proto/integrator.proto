@@ -4,7 +4,7 @@ option java_multiple_files = true;
 option java_package = "io.grpc.kc.engine";
 option java_outer_classname = "IntegratorProto";
 
-package integrator;
+package com.integrator.grpc;
 
 service Integrator {
   rpc Register (Module) returns (RegisterResponse) {}
@@ -68,5 +68,5 @@ message ExecuteRequest {
 }
 
 message ExecuteResponse {
-  
+  Component component = 1;
 }

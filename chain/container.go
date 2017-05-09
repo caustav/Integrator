@@ -64,7 +64,8 @@ func (container *Container) execute(wg *sync.WaitGroup) {
 func (container *Container) executeComponent() {
 	if container.ComponentHandler.ClientConn != nil {
 		moduleClient := proIntegrator.NewIntegratorModuleClient(container.ComponentHandler.ClientConn)
-		moduleClient.Execute(context.Background(), &proIntegrator.ExecuteRequest{container.ComponentHandler.Component})
+		response, _ := moduleClient.Execute(context.Background(), &proIntegrator.ExecuteRequest{container.ComponentHandler.Component})
+		container.ComponentHandler.Component = response.Component
 	} else {
 		request := &proIntegrator.ExecuteRequest{container.ComponentHandler.Component}
 		container.ComponentHandler.CompService.Execute(context.Background(), request)
@@ -80,7 +81,7 @@ func (container *Container) manageInputs() {
 func (container *Container) isAllInputFilled() bool {
 	ret := true
 	for _, value := range container.ComponentHandler.Component.ParamsInput {
-		if len(value.Str) <= 0 {
+		if value == nil || len(value.Str) <= 0 {
 			ret = false
 			break
 		}
